@@ -29,3 +29,23 @@ my-skills/
 追加示例(复制这行,去掉注释,填好):
 | grill-me | 逐条拷问把方案钉死 | 2026-06-04 |
 -->
+
+## 安装
+
+用 [`npx skills`](https://github.com/vercel-labs/skills)(vercel-labs 的开放 skill 安装工具)直接从本仓库装,无需手动拷贝目录:
+
+```bash
+# 装单个 skill(推荐,按需取用)
+npx skills add Cora093/my-skills --skill blog-reader
+
+# 一次装多个
+npx skills add Cora093/my-skills --skill teach-me --skill html-explainer
+
+# 先看看仓库里有哪些
+npx skills add Cora093/my-skills --list
+
+# 全部装上
+npx skills add Cora093/my-skills --all
+```
+
+默认装到当前项目;加 `-g` 装到全局,加 `-a claude-code` 指定目标 agent,加 `-y` 跳过交互(适合 CI)。
