@@ -1,0 +1,20 @@
+# --- OS / 系统垃圾 ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# --- 编辑器 / IDE ---
+.vscode/
+.idea/
+*.swp
+*~
+
+# --- 临时 / 压缩 ---
+*.tmp
+*.log
+*.zip
+*.rar
+
+# 注意:不要忽略任何 skill 文件夹或 SKILL.md —— 它们正是本仓库要归档的内容。
