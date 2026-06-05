@@ -12,7 +12,8 @@ description: >
   plain fetching cannot read.
 user-invocable: true
 compatibility: >
-  依赖 html-explainer skill 生成讲解页（不可用时自己写自包含 HTML 兜底）。
+  依赖 html-explainer skill 生成讲解页（不可用时自己写自包含 HTML 兜底）；
+  生成讲解页前若有 frontend-design skill 就先加载它，让页面更精致、不像通用 AI 模板。
   抓取按需用到：firecrawl-scrape skill / WebFetch（轻量）、Claude in Chrome 扩展（带登录态）、
   playwright CLI（headless，需 node）。这些都是按需降级，缺哪个就走下一档。
 ---
@@ -117,8 +118,10 @@ await browser.close();
 
 ## 第 2 步 · 直接生成 HTML 讲解页（调用 html-explainer）
 
-读到正文后，**立刻**调用 `html-explainer` skill 生成一个自包含、可在浏览器打开的**中文**讲解页。
-> 若 `html-explainer` 不可用，就自己写一个自包含 HTML（内联 CSS、无外部依赖、可双击打开）兜底，内容清单照旧。
+读到正文后，**立刻**生成一个自包含、可在浏览器打开的**中文**讲解页：
+- **先加载 `frontend-design` skill（若可用）**，套用它的排版 / 配色 / 动效 / 版式准则，让讲解页有设计感、不像通用 AI 模板。
+- 再调用 `html-explainer` skill 生成页面（html-explainer 内部也会优先加载 frontend-design）。
+> 若 `html-explainer` 不可用，就自己写一个自包含 HTML（内联 CSS、无外部依赖、可双击打开）兜底，内容清单照旧；这种兜底情况下同样先加载 frontend-design、套用其审美准则。
 
 保存到固定目录（按平台取用户文档目录）：
 

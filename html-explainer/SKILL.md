@@ -20,10 +20,26 @@ Use HTML as a high-bandwidth explanation format: visual, spatial, shareable, and
 
 1. Clarify the artifact's job: teach, compare, review, plan, tune, or edit.
 2. Gather source context from the repo, files, web, notes, logs, screenshots, or user-provided material.
-3. Design the page around fast comprehension: strong hierarchy, scannable sections, diagrams before prose when useful, and concrete examples over generic explanation.
-4. Build a self-contained HTML file with inline CSS and JavaScript unless the repo already has a better local pattern.
-5. Open or render the HTML when feasible and verify it is not blank, text fits, interactions work, and important visuals are visible on desktop and mobile widths.
-6. Report the file path and what it covers. Mention any source context that could not be accessed.
+3. **Load the `frontend-design` skill first when it is available**, and commit to a deliberate aesthetic direction before writing any markup. This is the single biggest lever for not shipping generic, forgettable HTML. See [Aesthetic Direction](#aesthetic-direction).
+4. Design the page around fast comprehension: strong hierarchy, scannable sections, diagrams before prose when useful, and concrete examples over generic explanation.
+5. Build a self-contained HTML file with inline CSS and JavaScript unless the repo already has a better local pattern.
+6. Open or render the HTML when feasible and verify it is not blank, text fits, interactions work, and important visuals are visible on desktop and mobile widths.
+7. Report the file path and what it covers. Mention any source context that could not be accessed.
+
+## Aesthetic Direction
+
+The default failure mode of generated HTML is forgettable, template-grade styling. Counter it deliberately:
+
+- **Load `frontend-design` first.** When that skill is available, invoke it before building and follow its guidance on typography, color, motion, spatial composition, and atmosphere. Treat its craft as the baseline, then layer the comprehension-first rules below on top.
+- **Serve comprehension, not decoration.** An explainer exists to be understood fast. Use distinctive design to *sharpen* hierarchy and meaning — never at the cost of readability or density. Operational/dense tools stay quiet and refined; teaching and report pages can be more expressive.
+- **Pick one point of view and execute it precisely.** A clear conceptual direction (editorial, technical-minimal, terminal/mono, warm print, etc.) beats a timid mix, and varies across artifacts — do not converge on the same look every time.
+
+If `frontend-design` is unavailable, still hold this baseline:
+
+- **Typography:** characterful fonts over defaults (avoid Arial / Roboto / Inter / system stacks); pair a distinctive display face with a readable body face; set deliberate sizes, weights, line-height, and measure.
+- **Color:** a small CSS-variable palette with a dominant color and sharp accents, used as information (severity, status, flow, grouping) rather than filler. Skip the purple-gradient-on-white cliché.
+- **Motion:** one well-orchestrated load (staggered reveals via `animation-delay`) plus restrained hover/scroll states beats scattered micro-animations. Keep it CSS-only and respect `prefers-reduced-motion`.
+- **Composition & atmosphere:** intentional layout (asymmetry, overlap, grid-breaks, generous whitespace *or* controlled density) and depth (gradient meshes, noise/grain, subtle borders/shadows) instead of flat solid backgrounds.
 
 ## Artifact Patterns
 
@@ -63,6 +79,7 @@ Before finishing, perform the strongest cheap verification available:
 - Open the file in a browser or use Playwright/browser tooling when available.
 - Check a desktop width and a narrow mobile width.
 - Confirm the page renders, there are no obvious JavaScript errors, interactions work, and copy/export buttons produce useful output.
+- Confirm it looks intentionally designed — distinctive type, a cohesive palette, deliberate layout — and not like a default template.
 - If browser verification is not available, run a basic static check and say verification was limited.
 
 ## Trigger Phrases
