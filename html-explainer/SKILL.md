@@ -76,7 +76,11 @@ Choose the pattern that matches the user's goal:
 
 Before finishing, perform the strongest cheap verification available:
 
-- Open the file in a browser or use Playwright/browser tooling when available.
+- Open the file in a browser when feasible. For real-browser verification, use an available
+  logged-in Chrome connector such as Codex Chrome (`Chrome:control-chrome`) or Claude in Chrome,
+  because it can inspect the rendered artifact in the user's actual browser session. Load and follow
+  the connector's own instructions; do not hard-code environment-specific tool names here.
+- If a real Chrome connector is unavailable, use Playwright/browser tooling when available.
 - Check a desktop width and a narrow mobile width.
 - Confirm the page renders, there are no obvious JavaScript errors, interactions work, and copy/export buttons produce useful output.
 - Confirm it looks intentionally designed — distinctive type, a cohesive palette, deliberate layout — and not like a default template.

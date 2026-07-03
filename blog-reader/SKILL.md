@@ -5,7 +5,7 @@ description: >
   Substack / 个人技术博客，也包括 X / Twitter 的推文或长文）并希望「总结 / 读这篇 /
   讲讲 / 教我这篇 / 带我学 / 讲解」时使用。优先用轻量抓取（firecrawl-scrape / WebFetch）
   读正文；遇到登录墙 / 付费墙 / 重 JS 的 SPA（如 X，裸抓会 402 / 空壳）再升级到浏览器兜底
-  （需登录态走 Claude in Chrome，公开重 JS 页走 playwright CLI）。读到正文后**直接生成一个中文 HTML 讲解页并在浏览器打开**
+  （需登录态优先走可用的真实 Chrome 连接器，如 Codex Chrome / Claude in Chrome；公开重 JS 页走 playwright CLI）。读到正文后**直接生成一个中文 HTML 讲解页并在浏览器打开**
   给用户看；讲解页默认保留，用户想清理时再删。默认不在聊天里长篇大论、不来回追问。
   Trigger when the user sends a blog / post / article URL and wants it summarized,
   read, explained, or taught. Falls back to a real logged-in browser for pages that
@@ -14,8 +14,8 @@ user-invocable: true
 compatibility: >
   依赖 html-explainer skill 生成讲解页（不可用时自己写自包含 HTML 兜底）；
   生成讲解页前若有 frontend-design skill 就先加载它，让页面更精致、不像通用 AI 模板。
-  抓取按需用到：firecrawl-scrape skill / WebFetch（轻量）、Claude in Chrome 扩展（带登录态）、
-  playwright CLI（headless，需 node）。这些都是按需降级，缺哪个就走下一档。
+  抓取按需用到：firecrawl-scrape skill / WebFetch（轻量）、Codex Chrome / Claude in Chrome
+  （带登录态）、playwright CLI（headless，需 node）。这些都是按需降级，缺哪个就走下一档。
 ---
 
 # blog-reader — 读博客 / 帖子 → 直接出 HTML 讲解页
@@ -57,33 +57,32 @@ compatibility: >
   - 返回 401 / 402 / 403 或反爬拦截页。
 - 读全了 → 直接进 **第 2 步**。
 
-### 1c. 浏览器兜底（两条路，按需选）
+### 1c. 浏览器兜底（按需选）
 
-轻量抓取读不全时升级到真实浏览器渲染。**有两条兜底路，按「要不要登录态」选**：
+轻量抓取读不全时升级到真实浏览器渲染。**先判断是否需要登录态，再选择当前环境可用的浏览器能力**：
 
 | 选哪条 | 适用 | 关键差异 |
 |--------|------|---------|
-| **A. Claude in Chrome** | 内容需要**登录态**（X 登录后才显示全、用户已订阅的付费文、内网文档） | 复用用户真实浏览器会话，带 cookie；需装并连接扩展 |
-| **B. playwright CLI** | **公开但重 JS** 的页面、firecrawl 没渲染好、或扩展没连上 | headless、无需扩展、纯命令行；但**无登录态** |
+| **A. 真实 Chrome 连接器** | 内容需要**登录态**（X 登录后才显示全、用户已订阅的付费文、内网文档） | 复用用户真实浏览器会话，带 cookie；可用实现包括 Codex Chrome / Claude in Chrome |
+| **B. playwright CLI** | **公开但重 JS** 的页面、firecrawl 没渲染好、或 Chrome 连接器不可用 | headless、无需扩展、纯命令行；但**无登录态** |
 
 > 经验法则：需要登录才能看全 → 走 A；只是 JS 渲染问题、内容本身公开 → 走 B（更省事，不依赖扩展）。
 > A 不可用就退到 B，B 也读不到（多半是真需要登录）再如实告知用户。
 
-#### A. Claude in Chrome（带登录态）
-按顺序操作（工具名用英文）：
-1. **连接浏览器**：`mcp__Claude_in_Chrome__list_connected_browsers`。
-   - 有浏览器 → `mcp__Claude_in_Chrome__select_browser`（用其 deviceId）。
-   - 没有 → 转 **B. playwright**，或见下方降级，**不要硬等**。
-2. **取标签页**：`mcp__Claude_in_Chrome__tabs_context_mcp {createIfEmpty:true}` 拿到 tabId
-   （优先复用空白页或新建，不要覆盖用户正在看的页面）。
-3. **导航**：`mcp__Claude_in_Chrome__navigate {url, tabId}`。
-4. **等渲染**：`mcp__Claude_in_Chrome__computer {action:"wait", duration:4, tabId}`
-   （X 这类 SPA 必须等，否则抓到空壳）。
-5. **抓正文**：`mcp__Claude_in_Chrome__get_page_text {tabId}`（优先提取 article 正文，适合长文）。
-6. **补全（按需）**：正文被截断 / 长 thread / 有「Show more / 展开」→ 用
-   `mcp__Claude_in_Chrome__read_page` 或 `computer {action:"scroll", direction:"down"}` 后再次
-   `get_page_text` 补齐。X thread：尽量抓到主楼完整正文，作者后续接楼若可见也一并纳入。
-- **连接抖动**：工具偶发返回 "not connected" 是常见瞬时问题——重新 `select_browser` 再重试一次即可。
+#### A. 真实 Chrome 连接器（带登录态）
+按当前会话中可用的连接器选择实现，不要把流程绑定死在某一套工具名上：
+
+1. **Codex Chrome**：如果可用技能列表里有 `Chrome:control-chrome` 或用户显式提到 `@Chrome`，
+   先加载并遵循该 skill。用它连接用户的 Chrome 会话，新建或复用空白标签页，导航到目标 URL，
+   等待渲染，滚动展开，再从页面正文提取文本。该插件的具体 API 以它自己的文档为准；不要臆造工具名。
+2. **Claude in Chrome**：如果当前会话提供 Claude in Chrome 连接器，就按该扩展的实际文档连接浏览器、
+   选择标签页、导航、等待、读取页面文本。不要假设具体 MCP 工具名；以已暴露工具为准。
+3. **通用原则**：
+   - 优先新建或复用空白标签页，不要覆盖用户正在看的页面。
+   - X / Twitter、Substack、Medium 等 SPA 必须等待渲染；正文被截断、长 thread、有「Show more / 展开」时，
+     滚动或点击展开后再次读取。
+   - 连接工具偶发失败时，重新选择 / 重连一次；仍不可用就转 **B. playwright**，不要硬等。
+   - 真正需要登录而 Chrome 连接器不可用时，如实告诉用户需要先在 Chrome 中登录或连接浏览器扩展。
 
 #### B. playwright CLI（headless，无需扩展）
 用一个小脚本渲染页面、取 `article`/`body` 正文。需要 node + playwright（首次 `npx playwright` 会自动装包，
@@ -112,8 +111,8 @@ await browser.close();
 - 用完**删掉这个临时脚本**（`rm`/`Remove-Item`），别留在磁盘上。
 
 ### 兜底都不行时
-- A、B 都读不到 → 如实告诉用户「只读到 X，正文需要登录/付费才能看全；可在 Chrome/Edge 里打开
-  Claude in Chrome 扩展并连接后我再用带登录态的方式读」，然后停下等待。
+- A、B 都读不到 → 如实告诉用户「只读到 X，正文需要登录/付费才能看全；可连接当前环境支持的 Chrome
+  插件 / 浏览器扩展后我再用带登录态的方式读」，然后停下等待。
 - **登录墙 / 付费墙 / 空白**：如实说明已读到什么、还差什么，**绝不脑补正文**。
 
 ## 第 2 步 · 直接生成 HTML 讲解页（调用 html-explainer）
