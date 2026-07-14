@@ -1,0 +1,4 @@
+interface:
+  display_name: "飞书 CLI 路由器"
+  short_description: "按需路由并读取 lark-cli 内嵌的飞书领域技能与安全规则"
+  default_prompt: "使用 $lark-cli-router，通过匹配的 lark-cli 内嵌 skill 处理这项飞书请求。"
