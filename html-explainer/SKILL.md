@@ -22,9 +22,26 @@ Use HTML as a high-bandwidth explanation format: visual, spatial, shareable, and
 2. Gather source context from the repo, files, web, notes, logs, screenshots, or user-provided material.
 3. **Load the `frontend-design` skill first when it is available**, and commit to a deliberate aesthetic direction before writing any markup. This is the single biggest lever for not shipping generic, forgettable HTML. See [Aesthetic Direction](#aesthetic-direction).
 4. Design the page around fast comprehension: strong hierarchy, scannable sections, diagrams before prose when useful, and concrete examples over generic explanation.
-5. Build a self-contained HTML file with inline CSS and JavaScript unless the repo already has a better local pattern.
+5. Resolve the complete output path using [Output Location](#output-location), then build a self-contained HTML file with inline CSS and JavaScript unless the repo already has a better local pattern.
 6. Open or render the HTML when feasible and verify it is not blank, text fits, interactions work, and important visuals are visible on desktop and mobile widths.
-7. Report the file path and what it covers. Mention any source context that could not be accessed.
+7. Report the absolute file path and what it covers. Mention any source context that could not be accessed.
+
+## Output Location
+
+Resolve the complete output path before writing the artifact. Use this precedence order:
+
+1. A path explicitly requested by the user.
+2. A complete path supplied by the calling skill or workflow.
+3. An established artifact or documentation location in the current project, when the task clearly belongs there.
+4. The global default directory:
+   - macOS / Linux: `~/Documents/html-explainer/<slug>.html`
+   - Windows: `%USERPROFILE%\Documents\html-explainer\<slug>.html`
+
+Merely running inside a repository does not justify adding a generated file to it. Use a project location only when the user or caller requests it, or when the project already has a clear convention for this kind of durable artifact. A calling skill owns its artifact organization: it should resolve and supply the complete target path, and this skill should use that path instead of applying its global default.
+
+Use a short descriptive English or romanized kebab-case `<slug>`. Create the parent directory when needed. Do not overwrite an existing file unless the user explicitly asks to replace it; append the next available numeric suffix instead, such as `architecture-overview-2.html` and `architecture-overview-3.html`.
+
+The final HTML is a durable artifact by default. Keep it after opening and verification, report its absolute path, and do not repeatedly ask whether to delete it. If the user explicitly asks for cleanup, delete only the artifact identified for that request. Temporary servers, screenshots, and verification scripts may be cleaned up separately without deleting the final HTML.
 
 ## Aesthetic Direction
 

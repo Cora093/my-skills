@@ -24,7 +24,7 @@ compatibility: >
 
 ## 核心原则
 - **不需要对话**：不要先在聊天里给总结、也不要问「要不要深入」。读完就直接出 HTML 并打开。
-- 唯一的一次交互在最后：确认用户看完没、要不要删掉这个 HTML。
+- 讲解页默认保留，不在最后追问是否删除；用户明确要求清理时再删除本次生成的文件。
 - 聊天里只留极简信息（生成了什么 + 路径），正文都进 HTML。
 
 ## 何时用
@@ -119,7 +119,7 @@ await browser.close();
 
 读到正文后，**立刻**生成一个自包含、可在浏览器打开的**中文**讲解页：
 - **先加载 `frontend-design` skill（若可用）**，套用它的排版 / 配色 / 动效 / 版式准则，让讲解页有设计感、不像通用 AI 模板。
-- 再调用 `html-explainer` skill 生成页面（html-explainer 内部也会优先加载 frontend-design）。
+- 先按下述规则确定**完整的目标文件路径**，再把该路径交给 `html-explainer` skill 生成页面；`html-explainer` 应优先使用调用方提供的路径，不应用自己的全局默认目录（其内部也会优先加载 frontend-design）。
 > 若 `html-explainer` 不可用，就自己写一个自包含 HTML（内联 CSS、无外部依赖、可双击打开）兜底，内容清单照旧；这种兜底情况下同样先加载 frontend-design、套用其审美准则。
 
 保存到固定目录（按平台取用户文档目录）：
@@ -137,6 +137,8 @@ mkdir -p ~/Documents/blog-reader
 # Windows (PowerShell)
 New-Item -ItemType Directory -Force "$env:USERPROFILE\Documents\blog-reader" | Out-Null
 ```
+
+生成前检查完整目标路径是否已存在。除非用户明确要求覆盖，否则在文件名后追加下一个可用的递增编号，例如 `<slug>-2.html`、`<slug>-3.html`。路径优先级、项目目录判断和最终产物生命周期等通用规则遵循 `html-explainer`；本工作流明确用上述 `blog-reader` 目录覆盖其全局默认目录。
 
 HTML 里应包含（中文）：
 - **标题 + 出处**：作者 / 平台 / 时间（识别不到就略，别编）+ 原文链接。
