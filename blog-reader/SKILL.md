@@ -12,7 +12,6 @@ description: >
   plain fetching cannot read.
 user-invocable: true
 compatibility: >
-  依赖 html-explainer skill 生成讲解页（不可用时自己写自包含 HTML 兜底）；
   生成讲解页前若有 frontend-design skill 就先加载它，让页面更精致、不像通用 AI 模板。
   抓取按需用到：firecrawl-scrape skill / WebFetch（轻量）、Codex Chrome / Claude in Chrome
   （带登录态）、playwright CLI（headless，需 node）。这些都是按需降级，缺哪个就走下一档。
@@ -115,12 +114,11 @@ await browser.close();
   插件 / 浏览器扩展后我再用带登录态的方式读」，然后停下等待。
 - **登录墙 / 付费墙 / 空白**：如实说明已读到什么、还差什么，**绝不脑补正文**。
 
-## 第 2 步 · 直接生成 HTML 讲解页（调用 html-explainer）
+## 第 2 步 · 直接生成 HTML 讲解页
 
 读到正文后，**立刻**生成一个自包含、可在浏览器打开的**中文**讲解页：
 - **先加载 `frontend-design` skill（若可用）**，套用它的排版 / 配色 / 动效 / 版式准则，让讲解页有设计感、不像通用 AI 模板。
-- 先按下述规则确定**完整的目标文件路径**，再把该路径交给 `html-explainer` skill 生成页面；`html-explainer` 应优先使用调用方提供的路径，不应用自己的全局默认目录（其内部也会优先加载 frontend-design）。
-> 若 `html-explainer` 不可用，就自己写一个自包含 HTML（内联 CSS、无外部依赖、可双击打开）兜底，内容清单照旧；这种兜底情况下同样先加载 frontend-design、套用其审美准则。
+- 先按下述规则确定**完整的目标文件路径**，再直接写一个自包含 HTML：内联 CSS 和 JavaScript、无构建步骤、无必要的外部依赖，可双击打开。
 
 保存到固定目录（按平台取用户文档目录）：
 
@@ -138,7 +136,7 @@ mkdir -p ~/Documents/blog-reader
 New-Item -ItemType Directory -Force "$env:USERPROFILE\Documents\blog-reader" | Out-Null
 ```
 
-生成前检查完整目标路径是否已存在。除非用户明确要求覆盖，否则在文件名后追加下一个可用的递增编号，例如 `<slug>-2.html`、`<slug>-3.html`。路径优先级、项目目录判断和最终产物生命周期等通用规则遵循 `html-explainer`；本工作流明确用上述 `blog-reader` 目录覆盖其全局默认目录。
+生成前检查完整目标路径是否已存在。除非用户明确要求覆盖，否则在文件名后追加下一个可用的递增编号，例如 `<slug>-2.html`、`<slug>-3.html`。不要因为当前目录是某个仓库就把讲解页写进仓库；始终使用上述 `blog-reader` 目录，除非用户明确指定其他位置。
 
 HTML 里应包含（中文）：
 - **标题 + 出处**：作者 / 平台 / 时间（识别不到就略，别编）+ 原文链接。
@@ -150,6 +148,8 @@ HTML 里应包含（中文）：
 - **简短点评**：可信度、立场/偏向、是否带推广性质、可借鉴 vs 需谨慎。
 
 ## 第 3 步 · 打开给用户看
+
+先用可用的浏览器工具做一次最低验证：确认页面非空、主要内容可见、没有明显溢出或控制台错误。静态讲解页不需要移动端和交互测试；浏览器工具不可用时只做静态文件检查并说明限制。
 
 用 `Bash` 打开生成的 HTML（用默认浏览器）：
 - macOS：`open "<绝对路径>"`

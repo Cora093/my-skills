@@ -22,7 +22,6 @@ my-skills/
 | 技能名 | 一句话用途 | 添加时间 |
 |--------|-----------|---------|
 | teach-me | 陪练式拆解一次会话/改动,边讲边测直到你真懂 | 2026-06-04 |
-| html-explainer | 把复杂内容做成可直接打开、可交互的自包含 HTML 说明页 | 2026-06-04 |
 | blog-reader | 把博客/帖子网址读出正文,直接出中文 HTML 讲解页给你看 | 2026-06-04 |
 | prompt-optimizer | 用 4-D 方法把粗略需求优化成适配多平台的精确提示词 | 2026-07-11 |
 | quick-walkthrough | 用简明导览和具体例子快速建立项目或概念的心智模型 | 2026-07-14 |
@@ -42,7 +41,7 @@ my-skills/
 npx skills add Cora093/my-skills --skill blog-reader
 
 # 一次装多个
-npx skills add Cora093/my-skills --skill teach-me --skill html-explainer
+npx skills add Cora093/my-skills --skill teach-me --skill blog-reader
 
 # 先看看仓库里有哪些
 npx skills add Cora093/my-skills --list
