@@ -32,12 +32,10 @@ low level (the business logic, the specific edge cases). Pushing ahead on a
 shaky foundation is the most common way teaching quietly fails, so resist the
 urge to rush.
 
-## Keep a running checklist document
+## Keep a running checklist
 
-Maintain a markdown doc (e.g. `UNDERSTANDING.md`) with a checklist of everything
-the learner should understand. Update it live: check items off only once they
-have shown they get it, and add new items as gaps surface. The checklist should
-cover three areas:
+Keep a short checklist in the conversation. Write `UNDERSTANDING.md` only for
+cross-session teaching or when the learner asks to keep a record. Cover:
 
 1. **The problem** — what it is, *why* the problem existed in the first place,
    and the different branches / approaches that were on the table.
