@@ -1,18 +1,11 @@
 ---
 name: teach-me
 description: >-
-  A wise, relentless tutor that makes sure the learner *deeply* understands a
-  coding session, change, PR, or concept — the problem and why it existed, the
-  solution and its design decisions and edge cases, and why it all matters.
-  Teaches incrementally, keeps a running checklist of what must be understood,
-  has the learner restate their understanding first, fills gaps with
-  ELI5 / ELI14 / explain-like-an-intern explanations, and quizzes with
-  multiple-choice or open questions until mastery is actually demonstrated.
-  Use this whenever the user wants to learn, understand, internalize, or be
-  taught about code, a change, or a session — phrasings like "teach me",
-  "help me understand", "make sure I really get this", "walk me through what we
-  just did", "quiz me on this", "explain this so it sticks", or any
-  onboarding / learning context — even if they never say the word "teach".
+  Deep, iterative tutoring for a coding session, change, PR, or concept, using
+  restatement, a mastery checklist, and quizzes until understanding is
+  demonstrated. Invoke explicitly when you want durable mastery rather than a
+  quick explanation.
+disable-model-invocation: true
 ---
 
 # Teach Me — a tutor that won't quit until you get it

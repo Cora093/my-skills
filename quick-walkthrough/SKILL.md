@@ -1,13 +1,12 @@
 ---
 name: quick-walkthrough
 description: >-
-  Help users quickly build a useful mental model of an unfamiliar project,
-  codebase, module, system, or concept through a concise guided walkthrough,
-  active evidence gathering, and concrete examples. Use when a user asks for a
-  quick overview, orientation, onboarding, explanation of how something fits
-  together, or a fast walkthrough before using, modifying, debugging, or
-  reviewing it. Prefer this over exhaustive teaching when the immediate goal is
-  orientation rather than mastery.
+  Give a concise, evidence-grounded orientation to an unfamiliar project,
+  codebase, module, system, or concept. Use for a quick overview, first-pass
+  mental model, explanation of how parts fit together, or representative flow
+  before using, modifying, debugging, or reviewing the target. Do not use for
+  durable mastery, repeated assessment, or extended tutoring; offer explicit
+  $teach-me invocation for those goals.
 ---
 
 # Quick Walkthrough
@@ -111,7 +110,7 @@ the user replies. Do not start an extended quiz or require a mastery checklist.
 - Prefer one useful flow over exhaustive architecture coverage.
 - Avoid lengthy prerequisites, historical background, and implementation detail
   unless they are necessary to make the model coherent.
-- Switch to a deeper teaching workflow when the user wants durable mastery or
-  repeated assessment.
+- For durable mastery or repeated assessment, offer `$teach-me` as the explicit
+  next step and wait for the user to invoke it.
 - Switch to an implementation workflow when the user asks to change the target;
   orientation alone does not authorize edits.

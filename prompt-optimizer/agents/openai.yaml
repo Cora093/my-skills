@@ -1,4 +1,4 @@
 interface:
   display_name: "Prompt Optimizer"
   short_description: "Turn rough requests into precise, ready-to-use prompts"
-  default_prompt: "Use $prompt-optimizer to improve this rough prompt for ChatGPT."
+  default_prompt: "Use $prompt-optimizer to turn this rough request into a ready-to-use AI prompt: [request]"
