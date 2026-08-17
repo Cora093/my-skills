@@ -26,6 +26,11 @@ my-skills/
 | prompt-optimizer | 用 4-D 方法把粗略需求优化成适配多平台的精确提示词 | 2026-07-11 |
 | quick-walkthrough | 用简明导览和具体例子快速建立项目或概念的心智模型 | 2026-07-14 |
 | lark-cli-router | 用单一入口按需加载 lark-cli 内嵌的飞书领域技能 | 2026-07-15 |
+| find-simplifications | 用调用证据找出可删除或折叠的复杂度并评估取舍 | 2026-08-18 |
+
+### 来源说明
+
+- `find-simplifications`: 参考 DeepSeek Harness 的 [`dsh-find-simplifications`](https://github.com/deepseek-ai/deepseek-harness/tree/master/.agents/skills/dsh-find-simplifications) 所采用的证据驱动简化审计思路，重新设计为不依赖特定语言、目录结构、Agent Note、包管理器或 PR 流程的通用 skill。
 
 <!--
 追加示例(复制这行,去掉注释,填好):

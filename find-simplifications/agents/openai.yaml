@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Simplifications"
+  short_description: "Find evidence-backed ways to remove complexity"
+  default_prompt: "Use $find-simplifications to audit this codebase for evidence-backed simplification opportunities."

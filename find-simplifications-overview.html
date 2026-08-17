@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Find Simplifications 通用 skill 的核心逻辑与参考版本对比。">
+  <title>Find Simplifications · 逻辑说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #15201c;
+      --muted: #586760;
+      --paper: #f4f7f5;
+      --surface: #ffffff;
+      --line: #d9e2dd;
+      --green: #087957;
+      --green-soft: #e4f3ed;
+      --blue: #176987;
+      --blue-soft: #e6f2f6;
+      --amber: #a6531f;
+      --amber-soft: #fbecdf;
+      --red: #a33d42;
+      --red-soft: #f8e8e9;
+      --shadow: 0 16px 40px rgba(28, 49, 40, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+
+    button, a { font: inherit; }
+
+    a { color: inherit; }
+
+    .page-shell {
+      overflow: hidden;
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .masthead {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .masthead-inner {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--ink);
+      color: #ffffff;
+      font-family: Consolas, monospace;
+      font-size: 15px;
+    }
+
+    .brand-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .masthead-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px var(--green-soft);
+    }
+
+    .hero {
+      padding: 72px 0 64px;
+      background: var(--surface);
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 820px;
+      margin-bottom: 22px;
+      font-size: 46px;
+      line-height: 1.15;
+      font-weight: 700;
+    }
+
+    .hero-lead {
+      max-width: 760px;
+      margin-bottom: 34px;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .thesis {
+      max-width: 880px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--green);
+      border-radius: 7px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .thesis-label {
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .thesis-copy {
+      padding: 22px 26px;
+      background: var(--surface);
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .band {
+      padding: 72px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .band-white { background: var(--surface); }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 440px);
+      gap: 48px;
+      align-items: end;
+      margin-bottom: 36px;
+    }
+
+    h2 {
+      margin-bottom: 0;
+      font-size: 30px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .section-heading p {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .comparison {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .comparison-head,
+    .comparison-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) 64px minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .comparison-head {
+      min-height: 82px;
+      color: #ffffff;
+      background: var(--ink);
+    }
+
+    .comparison-head > div,
+    .comparison-row > div {
+      display: flex;
+      align-items: center;
+      padding: 18px 22px;
+    }
+
+    .comparison-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .before-head strong,
+    .after-head strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .before-head span,
+    .after-head span {
+      color: #cbd7d1;
+      font-size: 13px;
+    }
+
+    .comparison-arrow {
+      justify-content: center;
+      color: #a9bbb2;
+      font-size: 22px;
+    }
+
+    .comparison-row {
+      min-height: 92px;
+      border-top: 1px solid var(--line);
+    }
+
+    .comparison-row:hover { background: #f8faf9; }
+
+    .before-cell { color: #6d5b50; }
+
+    .after-cell {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #e9eeeb;
+      color: #35453e;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 0.9em;
+    }
+
+    .logic-shell {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .stage-tabs {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stage-tab {
+      width: 100%;
+      min-height: 64px;
+      display: grid;
+      grid-template-columns: 36px 1fr 20px;
+      gap: 12px;
+      align-items: center;
+      padding: 11px 14px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .stage-tab:hover { background: #eaf0ed; }
+
+    .stage-tab[aria-selected="true"] {
+      border-color: #b7d6c9;
+      background: var(--green-soft);
+      color: var(--ink);
+    }
+
+    .stage-number {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--green);
+      font-family: Consolas, monospace;
+      font-weight: 700;
+    }
+
+    .stage-name {
+      display: block;
+      font-weight: 700;
+    }
+
+    .stage-summary {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .chevron { font-size: 18px; }
+
+    .stage-panel {
+      min-height: 390px;
+      padding: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .stage-kicker {
+      margin-bottom: 10px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .stage-panel h3 {
+      margin-bottom: 12px;
+      font-size: 26px;
+      line-height: 1.3;
+    }
+
+    .stage-panel > p {
+      max-width: 680px;
+      color: var(--muted);
+    }
+
+    .stage-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 28px;
+      border: 1px solid var(--line);
+      background: var(--line);
+    }
+
+    .stage-detail {
+      min-height: 154px;
+      padding: 20px;
+      background: var(--surface);
+    }
+
+    .stage-detail span {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .stage-detail strong {
+      display: block;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .gate-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .gate {
+      min-height: 320px;
+      padding: 30px;
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .gate-accept { border-top: 5px solid var(--green); }
+    .gate-reject { border-top: 5px solid var(--red); }
+
+    .gate-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .gate-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      font-family: Consolas, monospace;
+      font-weight: 700;
+    }
+
+    .gate-accept .gate-icon {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .gate-reject .gate-icon {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .gate h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .gate ul {
+      margin: 0;
+      padding-left: 22px;
+      color: var(--muted);
+    }
+
+    .gate li { margin-bottom: 12px; }
+
+    .example-flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .example-step {
+      position: relative;
+      min-height: 210px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .example-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      top: 86px;
+      right: -25px;
+      z-index: 2;
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--paper);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .example-step small {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .example-step h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .example-step p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .result-strip {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      border: 1px solid #b9d9cb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .result-strip strong {
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: var(--green);
+      color: #ffffff;
+    }
+
+    .result-strip span {
+      padding: 20px 24px;
+      background: var(--green-soft);
+      color: #13513f;
+      font-weight: 600;
+    }
+
+    .footer {
+      padding: 34px 0;
+      border-top: 1px solid var(--line);
+      background: var(--ink);
+      color: #d8e2dd;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .footer strong { color: #ffffff; }
+
+    @media (max-width: 880px) {
+      .section-heading,
+      .logic-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .section-heading { gap: 14px; }
+
+      .stage-tabs {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .stage-tab {
+        grid-template-columns: 34px 1fr;
+        min-width: 0;
+      }
+
+      .chevron { display: none; }
+
+      .example-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .example-step::after { display: none !important; }
+    }
+
+    @media (max-width: 720px) {
+      .container { width: min(100% - 28px, 1120px); }
+      .masthead-inner { min-height: 64px; }
+      .masthead-status { display: none; }
+      .hero { padding: 48px 0; }
+      h1 { font-size: 34px; }
+      .hero-lead { font-size: 17px; }
+      .thesis { grid-template-columns: 1fr; }
+      .thesis-label { place-items: start; padding: 14px 20px; }
+      .thesis-copy { padding: 20px; }
+      .band { padding: 52px 0; }
+      h2 { font-size: 26px; }
+
+      .comparison {
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .comparison-head { display: none; }
+
+      .comparison-row {
+        grid-template-columns: 1fr;
+        margin-bottom: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        overflow: hidden;
+      }
+
+      .comparison-row > div { padding: 14px 18px; }
+      .comparison-label { background: var(--ink); color: #ffffff; }
+      .comparison-arrow { display: none !important; }
+      .before-cell::before,
+      .after-cell::before {
+        display: block;
+        min-width: 72px;
+        margin-right: 12px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .before-cell::before { content: "参考版本"; color: var(--amber); }
+      .after-cell::before { content: "通用版本"; color: var(--green); }
+
+      .stage-panel { min-height: 0; padding: 24px; }
+      .stage-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stage-tab:last-child { grid-column: 1 / -1; }
+      .stage-detail-grid { grid-template-columns: 1fr; }
+      .stage-detail { min-height: 0; }
+      .gate-grid,
+      .example-flow { grid-template-columns: 1fr; }
+      .gate { min-height: 0; }
+      .result-strip { grid-template-columns: 1fr; }
+      .result-strip strong { place-items: start; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media print {
+      body { background: #ffffff; }
+      .stage-tabs { display: none; }
+      .logic-shell { grid-template-columns: 1fr; }
+      .stage-panel, .gate, .comparison, .example-step { box-shadow: none; }
+      .band { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="masthead">
+      <div class="container masthead-inner">
+        <div class="brand">
+          <div class="brand-mark">FS</div>
+          <div class="brand-copy">Find Simplifications<span>Evidence-backed complexity reduction</span></div>
+        </div>
+        <div class="masthead-status"><span class="status-dot"></span>通用 Skill · 已验证</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <p class="eyebrow">核心设计</p>
+          <h1>不是寻找“能改的地方”，而是证明“删掉以后更好”。</h1>
+          <p class="hero-lead">Find Simplifications 把宽泛的简化请求转成少量、高置信、可验证的候选。它关注净减少、行为边界和维护成本，而不是代码风格、抽象搬家或行数竞赛。</p>
+          <div class="thesis">
+            <div class="thesis-label">唯一判断标准</div>
+            <div class="thesis-copy">证据足够 + 净维护面下降 + 放弃的行为可接受 + 验证路径明确</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="comparison">
+        <div class="container">
+          <div class="section-heading">
+            <h2>从项目专用经验，提炼为仓库无关方法</h2>
+            <p>参考版本提供了有效判断经验；新版本只保留可迁移的方法，并把目录、语言、设计文档和验证命令全部改为运行时发现。</p>
+          </div>
+
+          <div class="comparison" role="table" aria-label="参考版本与通用版本对比">
+            <div class="comparison-head" role="row">
+              <div></div>
+              <div class="before-head"><div><strong>参考版本</strong><span>固定项目语境</span></div></div>
+              <div class="comparison-arrow">→</div>
+              <div class="after-head"><div><strong>通用版本</strong><span>按仓库事实适配</span></div></div>
+            </div>
+
+            <div class="comparison-row" role="row">
+              <div class="comparison-label" role="rowheader">上下文</div>
+              <div class="before-cell" role="cell">预设架构、服务边界和受保护组件</div>
+              <div class="comparison-arrow" aria-hidden="true">→</div>
+              <div class="after-cell" role="cell">先读取当前仓库规则、架构、历史与兼容承诺</div>
+            </div>
+            <div class="comparison-row" role="row">
+              <div class="comparison-label" role="rowheader">搜索语料库</div>
+              <div class="before-cell" role="cell">固定 <code>packages/*</code>、examples、Node 运行路径</div>
+              <div class="comparison-arrow" aria-hidden="true">→</div>
+              <div class="after-cell" role="cell">发现真实源码、测试、配置、生成物、示例和动态注册路径</div>
+            </div>
+            <div class="comparison-row" role="row">
+              <div class="comparison-label" role="rowheader">设计记录</div>
+              <div class="before-cell" role="cell">固定使用 Agent Note 及其生命周期规则</div>
+              <div class="comparison-arrow" aria-hidden="true">→</div>
+              <div class="after-cell" role="cell">沿用仓库已有 ADR、RFC、issue 或其他决策制度</div>
+            </div>
+            <div class="comparison-row" role="row">
+              <div class="comparison-label" role="rowheader">候选领域</div>
+              <div class="before-cell" role="cell">围绕 ACP、LLM、Cordis、session 等既定模块</div>
+              <div class="comparison-arrow" aria-hidden="true">→</div>
+              <div class="after-cell" role="cell">按子系统与关注点划分，适配任意语言和工程结构</div>
+            </div>
+            <div class="comparison-row" role="row">
+              <div class="comparison-label" role="rowheader">验证</div>
+              <div class="before-cell" role="cell">固定 pnpm、doc-sync、lint 与 PR 流程</div>
+              <div class="comparison-arrow" aria-hidden="true">→</div>
+              <div class="after-cell" role="cell">根据实际 diff 选择仓库自己的检查与运行时验收</div>
+            </div>
+            <div class="comparison-row" role="row">
+              <div class="comparison-label" role="rowheader">默认产出</div>
+              <div class="before-cell" role="cell">设计记录、行内注释和草稿 PR</div>
+              <div class="comparison-arrow" aria-hidden="true">→</div>
+              <div class="after-cell" role="cell">默认只读报告；得到授权后才创建工件或实施</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band band-white" id="logic">
+        <div class="container">
+          <div class="section-heading">
+            <h2>五阶段主逻辑</h2>
+            <p>每一步都会缩小不确定性。候选只有经过消费者证明、历史核对和净收益权衡，才进入最终结果。</p>
+          </div>
+
+          <div class="logic-shell">
+            <div class="stage-tabs" role="tablist" aria-label="主逻辑阶段">
+              <button class="stage-tab" type="button" role="tab" aria-selected="true" data-stage="0">
+                <span class="stage-number">01</span><span><span class="stage-name">定界</span><span class="stage-summary">Scope</span></span><span class="chevron">›</span>
+              </button>
+              <button class="stage-tab" type="button" role="tab" aria-selected="false" data-stage="1">
+                <span class="stage-number">02</span><span><span class="stage-name">扫描</span><span class="stage-summary">Survey</span></span><span class="chevron">›</span>
+              </button>
+              <button class="stage-tab" type="button" role="tab" aria-selected="false" data-stage="2">
+                <span class="stage-number">03</span><span><span class="stage-name">证明</span><span class="stage-summary">Prove</span></span><span class="chevron">›</span>
+              </button>
+              <button class="stage-tab" type="button" role="tab" aria-selected="false" data-stage="3">
+                <span class="stage-number">04</span><span><span class="stage-name">权衡</span><span class="stage-summary">Trade off</span></span><span class="chevron">›</span>
+              </button>
+              <button class="stage-tab" type="button" role="tab" aria-selected="false" data-stage="4">
+                <span class="stage-number">05</span><span><span class="stage-name">交付</span><span class="stage-summary">Deliver</span></span><span class="chevron">›</span>
+              </button>
+            </div>
+
+            <div class="stage-panel" role="tabpanel" aria-live="polite">
+              <p class="stage-kicker" id="stage-kicker">阶段 01 · Scope</p>
+              <h3 id="stage-title">先确定“找什么”与“能做什么”</h3>
+              <p id="stage-copy">区分只读发现、书面提案和直接实施；同时识别项目是否存在外部兼容承诺，避免把仓库内零调用误判成公开 API 已死亡。</p>
+              <div class="stage-detail-grid">
+                <div class="stage-detail"><span>输入</span><strong id="stage-input">用户措辞、仓库规则、发布状态</strong></div>
+                <div class="stage-detail"><span>关键门槛</span><strong id="stage-gate">权限和兼容范围必须明确</strong></div>
+                <div class="stage-detail"><span>输出</span><strong id="stage-output">审计边界与证据来源</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="gates">
+        <div class="container">
+          <div class="section-heading">
+            <h2>候选不是“看起来复杂”</h2>
+            <p>Skill 同时定义进入标准和否决条件，让报告更短，也让保留复杂度的理由变得可见。</p>
+          </div>
+          <div class="gate-grid">
+            <article class="gate gate-accept">
+              <div class="gate-title"><span class="gate-icon">✓</span><h3>进入候选集</h3></div>
+              <ul>
+                <li>没有有意义的生产消费者，或仅由过时测试和文档维持。</li>
+                <li>多个状态、事件、缓存或回调表达同一事实。</li>
+                <li>抽象、配置或兼容路径没有当前产品所有者。</li>
+                <li>平台能力或健康依赖能真正删除自研实现和专属测试。</li>
+                <li>移除范围、行为损失和最小验证路径都能说清楚。</li>
+              </ul>
+            </article>
+            <article class="gate gate-reject">
+              <div class="gate-title"><span class="gate-icon">×</span><h3>拒绝或降级</h3></div>
+              <ul>
+                <li>当前生产调用者确实需要该行为。</li>
+                <li>公开 API 的外部兼容情况仍然未知。</li>
+                <li>方案只是移动代码、增加包装或制造另一层抽象。</li>
+                <li>删除实质上是未经授权的产品决策。</li>
+                <li>依据只有行数、复杂度指标、一次静态扫描或个人风格偏好。</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="band band-white" id="example">
+        <div class="container">
+          <div class="section-heading">
+            <h2>一个候选如何穿过证据链</h2>
+            <p>以前向测试中发现的空启动钩子为例：不是因为函数很短而删除，而是因为完整证据证明它没有行为和所有者。</p>
+          </div>
+          <div class="example-flow">
+            <article class="example-step"><small>发现</small><h3>启动入口调用 <code>Test()</code></h3><p>函数体只有注释，但“看起来没用”仍不是结论。</p></article>
+            <article class="example-step"><small>证明</small><h3>全仓只有一个调用点</h3><p>没有配置、动态注册、测试或文档消费者。</p></article>
+            <article class="example-step"><small>核对</small><h3>历史标记为未启用实验</h3><p>原始动机不是产品能力，也没有兼容承诺。</p></article>
+            <article class="example-step"><small>闭环</small><h3>删除入口、声明与实现</h3><p>最小验证是重新构建并执行一次启动冒烟测试。</p></article>
+          </div>
+          <div class="result-strip"><strong>最终结论</strong><span>高置信简化：完整删除无效启动路径，而不是重命名、封装或保留空兼容层。</span></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div><strong>find-simplifications</strong> · 通用、证据驱动、默认只读</div>
+        <div>结构校验通过 · 安装发现通过 · MaaEnd 前向测试通过</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const stages = [
+      {
+        kicker: "阶段 01 · Scope",
+        title: "先确定“找什么”与“能做什么”",
+        copy: "区分只读发现、书面提案和直接实施；同时识别项目是否存在外部兼容承诺，避免把仓库内零调用误判成公开 API 已死亡。",
+        input: "用户措辞、仓库规则、发布状态",
+        gate: "权限和兼容范围必须明确",
+        output: "审计边界与证据来源"
+      },
+      {
+        kicker: "阶段 02 · Survey",
+        title: "广泛扫描，但不让工具替你下结论",
+        copy: "从高变化或高复杂度生产区域开始，寻找死接口、重复状态、推测性扩展、过度防御、无收益边界和可替代的自研基础设施。",
+        input: "源码、测试、配置、生成物、历史",
+        gate: "指标和静态分析只提供线索",
+        output: "按子系统组织的候选清单"
+      },
+      {
+        kicker: "阶段 03 · Prove",
+        title: "把每个候选放到调用关系里验证",
+        copy: "搜索符号、wire name、配置键、反射和动态注册，再读取调用点并分类消费者。历史和设计记录用于解释存在原因，但不能替代当前事实。",
+        input: "精确搜索、调用点、决策记录",
+        gate: "搜索数量不能代替语义阅读",
+        output: "支持证据与反证据"
+      },
+      {
+        kicker: "阶段 04 · Trade off",
+        title: "计算净减少，而不是只数删除行",
+        copy: "列出实现、接口、测试、文档和迁移代码的完整删除面，同时说明会失去的行为、兼容性或未来弹性，并计入替换胶水与无关改动。",
+        input: "删除范围、行为损失、迁移成本",
+        gate: "移动复杂度不算简化",
+        output: "保留、降级或高置信推荐"
+      },
+      {
+        kicker: "阶段 05 · Deliver",
+        title: "交付少量可执行结论",
+        copy: "按证据强度、净维护收益、行为风险和实施独立性排序。默认在对话中报告；只有用户授权或仓库规则要求时才创建工件或实施。",
+        input: "已证明候选与拒绝的近似候选",
+        gate: "每项必须带最小验证计划",
+        output: "排序报告或授权后的完整改动"
+      }
+    ];
+
+    const tabs = Array.from(document.querySelectorAll(".stage-tab"));
+    const fields = {
+      kicker: document.getElementById("stage-kicker"),
+      title: document.getElementById("stage-title"),
+      copy: document.getElementById("stage-copy"),
+      input: document.getElementById("stage-input"),
+      gate: document.getElementById("stage-gate"),
+      output: document.getElementById("stage-output")
+    };
+
+    function selectStage(index) {
+      const stage = stages[index];
+      tabs.forEach((tab, tabIndex) => tab.setAttribute("aria-selected", String(tabIndex === index)));
+      Object.entries(fields).forEach(([key, element]) => { element.textContent = stage[key]; });
+    }
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => selectStage(index));
+      tab.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+        event.preventDefault();
+        const direction = event.key === "ArrowRight" ? 1 : -1;
+        const nextIndex = (index + direction + tabs.length) % tabs.length;
+        tabs[nextIndex].focus();
+        selectStage(nextIndex);
+      });
+    });
+  </script>
+</body>
+</html>
