@@ -1,0 +1,7 @@
+interface:
+  display_name: "Quick Walkthrough"
+  short_description: "Build a concise, evidence-grounded first-pass mental model"
+  default_prompt: "Use $quick-walkthrough to give me a concise, evidence-grounded orientation to this target."
+
+policy:
+  allow_implicit_invocation: false
